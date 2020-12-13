@@ -2,6 +2,9 @@ import React, { useRef, useState } from 'react';
 import { Easing, Animated, View, StyleSheet, Button } from 'react-native';
 import Svg, { G, Circle } from 'react-native-svg';
 
+import Countdown from './Countdown';
+import TimerButton from './TimerButton';
+
 import { TIMER_RADIUS as radius } from '../constants';
 
 const Timer = ({ strokeWidth, duration, color }) => {
@@ -10,6 +13,7 @@ const Timer = ({ strokeWidth, duration, color }) => {
 	let progressPercentage = 0;
 
 	const circleRef = useRef();
+	const countdownRef = useRef();
 	const circumference = 2 * Math.PI * radius;
 	const halfCircle = radius + strokeWidth;
 
@@ -39,6 +43,7 @@ const Timer = ({ strokeWidth, duration, color }) => {
 	let animationRef = createAnimation(animated);
 
 	const toggleTimer = () => {
+		countdownRef.current.toggleCountdown();
 		if (!playing) {
 			if (progressPercentage !== 0) {
 				animated = useRef(new Animated.Value(progressPercentage)).current;
@@ -85,8 +90,15 @@ const Timer = ({ strokeWidth, duration, color }) => {
 					/>
 				</G>
 			</Svg>
-			<View style={{ marginTop: 30 }}>
-				<Button title="Play/Pause" onPress={toggleTimer} />
+			<View style={[StyleSheet.absoluteFillObject, { top: 105, left: 80 }]}>
+				<Countdown
+					duration={duration / 1000}
+					playing={playing}
+					ref={countdownRef}
+				/>
+			</View>
+			<View style={styles.timerButton}>
+				<TimerButton paused={!playing} onPress={toggleTimer} />
 			</View>
 		</View>
 	);
@@ -94,4 +106,8 @@ const Timer = ({ strokeWidth, duration, color }) => {
 
 export default Timer;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+	timerButton: {
+		marginTop: 33,
+	},
+});
