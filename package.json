@@ -8,6 +8,10 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "eslint": "^7.15.0",
+    "eslint-config-leapfrog": "^3.0.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-react-native": "^4.1.0",
     "expo": "~40.0.0",
     "expo-app-loading": "^1.0.1",
     "expo-font": "~8.4.0",
