@@ -6,7 +6,7 @@ class Countdown extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			secondsRemaining: 0,
+			msRemaining: 0,
 		};
 		this.countdownId = {};
 	}
@@ -14,7 +14,7 @@ class Countdown extends React.Component {
 	componentDidMount() {
 		this.setState({
 			...this.state,
-			secondsRemaining: this.props.duration,
+			msRemaining: this.props.duration,
 		});
 	}
 
@@ -24,15 +24,16 @@ class Countdown extends React.Component {
 
 	createCountdownInterval() {
 		return setInterval(() => {
-			if (this.state.secondsRemaining !== 0) {
+			if (this.state.msRemaining >= 100) {
+				const d = this.state.msRemaining - 100;
 				this.setState({
-					...this.setState,
-					secondsRemaining: this.state.secondsRemaining - 1,
+					msRemaining: d,
 				});
 			} else {
 				clearInterval(this.countdownId);
+				this.props.setPlaying(!this.props.playing);
 			}
-		}, 1000);
+		}, 100);
 	}
 
 	toggleCountdown() {
@@ -47,7 +48,7 @@ class Countdown extends React.Component {
 		return (
 			<View>
 				<Text style={styles.timestamp}>
-					{timestampMinute(this.state.secondsRemaining)}
+					{timestampMinute(this.state.msRemaining)}
 				</Text>
 			</View>
 		);

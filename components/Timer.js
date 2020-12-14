@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import { Easing, Animated, View, StyleSheet, Button } from 'react-native';
 import Svg, { G, Circle } from 'react-native-svg';
 
+import { getRemainingTimeByProgress } from '../utils/timer';
+
 import Countdown from './Countdown';
 import TimerButton from './TimerButton';
 
@@ -10,18 +12,15 @@ import { TIMER_RADIUS as radius } from '../constants';
 const Timer = ({ strokeWidth, duration, color }) => {
 	const [playing, setPlaying] = useState(false);
 
-	let progressPercentage = 0;
-
 	const circleRef = useRef();
 	const countdownRef = useRef();
 	const circumference = 2 * Math.PI * radius;
 	const halfCircle = radius + strokeWidth;
 
-	const createAnimation = (animated) => {
+	const createAnimation = (animated, durationMilis) => {
 		return Animated.timing(animated, {
-			delay: 0,
 			toValue: 100,
-			duration,
+			duration: durationMilis,
 			useNativeDriver: true,
 			easing: Easing.linear,
 		});
@@ -29,8 +28,7 @@ const Timer = ({ strokeWidth, duration, color }) => {
 
 	const initiateListener = (animatedVal) => {
 		animatedVal.addListener((v) => {
-			progressPercentage = v.value;
-			const strokeDashoffset = circumference * (progressPercentage / 100);
+			const strokeDashoffset = circumference * (v.value / 100);
 			if (circleRef?.current) {
 				circleRef.current.setNativeProps({
 					strokeDashoffset,
@@ -40,14 +38,16 @@ const Timer = ({ strokeWidth, duration, color }) => {
 	};
 
 	let animated = useRef(new Animated.Value(0)).current;
-	let animationRef = createAnimation(animated);
+	let animationRef = createAnimation(animated, duration);
 
-	const toggleTimer = () => {
+	function toggleTimer() {
 		countdownRef.current.toggleCountdown();
 		if (!playing) {
-			if (progressPercentage !== 0) {
-				animated = useRef(new Animated.Value(progressPercentage)).current;
-				animationRef = createAnimation(animated);
+			if (animated._value > 0) {
+				animationRef = createAnimation(
+					animated,
+					getRemainingTimeByProgress(duration, animated._value)
+				);
 			}
 			animationRef.start();
 			initiateListener(animated);
@@ -56,7 +56,7 @@ const Timer = ({ strokeWidth, duration, color }) => {
 			animated.removeAllListeners();
 		}
 		setPlaying(!playing);
-	};
+	}
 
 	return (
 		<View style={{ width: radius * 2, height: radius * 2 }}>
@@ -92,8 +92,9 @@ const Timer = ({ strokeWidth, duration, color }) => {
 			</Svg>
 			<View style={[StyleSheet.absoluteFillObject, { top: 105, left: 80 }]}>
 				<Countdown
-					duration={duration / 1000}
+					duration={duration}
 					playing={playing}
+					setPlaying={setPlaying}
 					ref={countdownRef}
 				/>
 			</View>
