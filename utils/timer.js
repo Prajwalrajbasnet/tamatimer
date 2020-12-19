@@ -21,3 +21,13 @@ export function timestampMinute(timeInMilis) {
 export function getRemainingTimeByProgress(total, progressPercentage) {
   return total - (progressPercentage / 100) * total;
 }
+
+/**
+ * Find timebox type according to the position as first timebox would be pomodoro, second break and so on.
+ *
+ * @param {Number} timeboxIndex
+ * @returns {String}
+ */
+export function getTimeboxType(timeboxIndex) {
+  return (timeboxIndex + 1) % 2 === 0 ? 'break' : 'pomodoro';
+}

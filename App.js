@@ -7,31 +7,35 @@ import AppLoading from 'expo-app-loading';
 
 import Home from './screens/Home';
 
+import { PomodoroProvider } from './context/pomodoroContext';
+
 const customFonts = {
-	'ubuntu-md': require('./assets/fonts/Ubuntu-Medium.ttf'),
-	'spartanmb-eb': require('./assets/fonts/SpartanMB-Extra-Bold.ttf'),
+  'ubuntu-md': require('./assets/fonts/Ubuntu-Medium.ttf'),
+  'spartanmb-eb': require('./assets/fonts/SpartanMB-Extra-Bold.ttf'),
 };
 
 export default function App() {
-	const [hasLoaded] = Font.useFonts(customFonts);
+  const [hasLoaded] = Font.useFonts(customFonts);
 
-	if (!hasLoaded) {
-		return <AppLoading />;
-	}
+  if (!hasLoaded) {
+    return <AppLoading />;
+  }
 
-	return (
-		<View style={styles.container}>
-			<StatusBar style="auto" />
-			<Home />
-		</View>
-	);
+  return (
+    <PomodoroProvider>
+      <View style={styles.container}>
+        <StatusBar style="auto" />
+        <Home />
+      </View>
+    </PomodoroProvider>
+  );
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

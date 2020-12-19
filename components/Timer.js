@@ -1,21 +1,33 @@
-import React, { useRef, useState } from 'react';
-import { Easing, Animated, View, StyleSheet, Button } from 'react-native';
 import Svg, { G, Circle } from 'react-native-svg';
-
-import { getRemainingTimeByProgress } from '../utils/timer';
+import React, { useRef, useState, useContext } from 'react';
+import { Easing, Animated, View, StyleSheet, Button } from 'react-native';
 
 import Countdown from './Countdown';
 import TimerButton from './TimerButton';
 
+import { timeboxTheme } from '../constants/themes';
 import { TIMER_RADIUS as radius } from '../constants';
 
-const Timer = ({ strokeWidth, duration, color }) => {
+import PomodoroContext from '../context/pomodoroContext';
+
+import { getTimeboxType } from '../utils/timer';
+import { getRemainingTimeByProgress } from '../utils/timer';
+
+const Timer = ({ strokeWidth, moveToNextTimebox }) => {
   const [playing, setPlaying] = useState(false);
+
+  const { activeTimebox, timeboxes } = useContext(PomodoroContext);
+
+  let duration = timeboxes[activeTimebox] * 60000;
+
+  const color = timeboxTheme[getTimeboxType(activeTimebox)]['bar'];
 
   const circleRef = useRef();
   const countdownRef = useRef();
   const circumference = 2 * Math.PI * radius;
   const halfCircle = radius + strokeWidth;
+
+  let strokeDashOffset = 0;
 
   const createAnimation = (animated, durationMilis) => {
     return Animated.timing(animated, {
@@ -28,6 +40,12 @@ const Timer = ({ strokeWidth, duration, color }) => {
 
   const initiateListener = animatedVal => {
     animatedVal.addListener(v => {
+      if (v.value === 100) {
+        moveToNextTimebox();
+        setPlaying(false);
+        duration = timeboxes[activeTimebox] * 60000;
+        strokeDashOffset = 0;
+      }
       const strokeDashoffset = circumference * (v.value / 100);
       if (circleRef?.current) {
         circleRef.current.setNativeProps({
@@ -68,7 +86,7 @@ const Timer = ({ strokeWidth, duration, color }) => {
             stroke={color}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
-            strokeDashoffset={0}
+            strokeDashoffset={strokeDashOffset}
             strokeDasharray={circumference}
           />
           <Circle
